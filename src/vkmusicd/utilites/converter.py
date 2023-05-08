@@ -9,13 +9,14 @@ from urllib.request import urlopen
 
 
 def get_key(data):
-    for i in range(data.media_sequence):
-        try:
-            key_uri = data.keys[i].uri
-            host_uri = "/".join(key_uri.split("/")[:-1])
-            return host_uri
-        except Exception:
-            continue
+    for key in data.keys:
+        if key and key.method == "AES-128":
+            try:
+                key_uri = key.absolute_uri
+                host_uri = "/".join(key_uri.split("/")[:-1])
+                return host_uri
+            except Exception:
+                continue
 
 
 def read_keys(path):
@@ -35,7 +36,7 @@ def get_ts(url):
         decrypt_func = lambda x: x
         if segment.key.method == "AES-128":
             if not key:
-                key_uri = segment.key.uri
+                key_uri = segment.key.absolute_uri
                 key = read_keys(key_uri)
             ind = i + data.media_sequence
             iv = binascii.a2b_hex('%032x' % ind)
