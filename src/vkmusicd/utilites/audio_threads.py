@@ -272,7 +272,7 @@ class DownloadAudio(QThread):
 
     def _download(self, track):
         name = "{artist} - {title}".format(**track)
-        name = sub(r"[^a-zA-Z '#0-9.а-яА-Я()-]", "", name)[: MAX_FILENAME_LENGTH - 16] + ".mp3"
+        name = self.clean_filename(name)[: MAX_FILENAME_LENGTH - 16] + ".mp3"
         self.statusBar.showMessage("Скачивается {}".format(name))
         out = self.directory / name
         m3u8_to_mp3(track['url'], name=str(out))
@@ -332,3 +332,8 @@ class DownloadAudio(QThread):
 
         audio.save()
         return True
+
+    @staticmethod
+    def clean_filename(s):
+        bad_chars = ['/', '\\', ':', '*', '"', '?', '<', '>', '|', '\0']
+        return ''.join(filter(lambda x: x not in bad_chars, s))
